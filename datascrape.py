@@ -58,25 +58,23 @@ def fetch_data(region, startdate, enddate):
     return pd.concat(frames).set_index("EST")
 
 def dictdf(munis, startdate, enddate):
+    delta = timedelta(days=1)
     data_dict = {}
     missing_dates = set()
-    delta = timedelta(days=1)
+    all_dates = set()
+    d = startdate
+    while d <= enddate:
+        all_dates.add(dateformat(d))
+        d += delta
 
     if type(munis) == str:
         munis = [munis]
 
     for muni in munis:
         data_dict[muni] = fetch_data(muni, startdate, enddate)
-        d = startdate
-        while d <= enddate:
-            if dateformat(d) not in data_dict[muni].index:
-                missing_dates.add(d)
-            d += delta
+        missing_dates = missing_dates.union(all_dates.difference(set(data_dict[muni].index.values)))
             
     # delete missing dates from every df
     for muni, df in data_dict.items():
-        for d in missing_dates:
-            if dateformat(d) in df.index:
-                df = df[df.index != dateformat(d)]
-        data_dict[muni] = df
+        data_dict[muni] = df.loc[~df.index.isin(missing_dates)]
     return data_dict
