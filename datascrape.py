@@ -55,9 +55,10 @@ def fetch_data(region, startdate, enddate):
             else:
                 continue
         if frame.PrecipitationIn.dtype == 'O':
-            frames.append(frame[frame.PrecipitationIn != 'T'])
-        else:
-            frames.append(frame)
+            frame = frame[frame.PrecipitationIn != 'T']
+            frame.PrecipitationIn = pd.to_numeric(frame.PrecipitationIn)
+        frame = frame[frame.PrecipitationIn >= 0.0]    
+        frames.append(frame)
     return pd.concat(frames).set_index("EST")
 
 def dictdf(munis, startdate, enddate):
