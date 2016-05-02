@@ -75,6 +75,7 @@ def dictdf(munis, startdate, enddate):
         missing_dates = missing_dates.union(all_dates.difference(set(data_dict[muni].index.values)))
             
     # delete missing dates from every df
+    common_dates = all_dates.difference(missing_dates)
     for muni, df in data_dict.items():
-        data_dict[muni] = df.loc[~df.index.isin(missing_dates)]
+        data_dict[muni] = df.loc[df.index.isin(common_dates)]
     return data_dict
