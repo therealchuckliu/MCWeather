@@ -14,7 +14,18 @@ munis = { 'KBOS':'Boston',
           'KPYM':'Carver',
           'KBAF':'Westfield',
           'KBED':'Bedford',
-          'KPSF':'Pittsfield' }
+          'KPSF':'Pittsfield',
+          'KROC':'Rochester',
+          'KBUF':'Buffalo',
+          'KNYC':'New York',
+          'KPVD':'Providence',
+          'KHVN':'New Haven',
+          'KBDR':'Bridgeport',
+          'KFMH':'Cape Code',
+          'KHPN':'Purchase',
+          'KALB':'Albany',
+          'KUUU':'Newport'
+          }
 
 def dateformat(d):
     return "{}-{}-{}".format(d.year, d.month, d.day)
@@ -36,29 +47,30 @@ def fetch_data(region, startdate, enddate):
                 time.sleep(2)
                 
         frame = pd.read_csv(fname(region, year))
-        if startdate.year == year:
-            d = startdate
-            while dateformat(d) not in frame.EST.values and d <= enddate:
-                d += delta
-            if d <= enddate:
-                startidx = frame[frame.EST==dateformat(d)].index[0]
-                frame = frame[frame.index >= startidx]
-            else:
-                continue
-        if enddate.year == year:
-            d = enddate
-            while dateformat(d) not in frame.EST.values and d >= startdate:
-                d -= delta
-            if d >= startdate:
-                endidx = frame[frame.EST==dateformat(d)].index[0]
-                frame = frame[frame.index <= endidx]
-            else:
-                continue
-        if frame.PrecipitationIn.dtype == 'O':
-            frame = frame[frame.PrecipitationIn != 'T']
-            frame.PrecipitationIn = pd.to_numeric(frame.PrecipitationIn)
-        frame = frame[frame.PrecipitationIn >= 0.0]    
-        frames.append(frame)
+        if 'EST' in frame.columns:
+            if startdate.year == year:
+                d = startdate
+                while dateformat(d) not in frame.EST.values and d <= enddate:
+                    d += delta
+                if d <= enddate:
+                    startidx = frame[frame.EST==dateformat(d)].index[0]
+                    frame = frame[frame.index >= startidx]
+                else:
+                    continue
+            if enddate.year == year:
+                d = enddate
+                while dateformat(d) not in frame.EST.values and d >= startdate:
+                    d -= delta
+                if d >= startdate:
+                    endidx = frame[frame.EST==dateformat(d)].index[0]
+                    frame = frame[frame.index <= endidx]
+                else:
+                    continue
+            if frame.PrecipitationIn.dtype == 'O':
+                frame = frame[frame.PrecipitationIn != 'T']
+                frame.PrecipitationIn = pd.to_numeric(frame.PrecipitationIn)
+            frame = frame[frame.PrecipitationIn >= 0.0]    
+            frames.append(frame)
     return pd.concat(frames).set_index("EST")
 
 def dictdf(munis, startdate, enddate):
