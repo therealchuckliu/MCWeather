@@ -15,13 +15,11 @@ munis = { 'KBOS':'Boston',
           'KBAF':'Westfield',
           'KBED':'Bedford',
           'KPSF':'Pittsfield',
-          'KROC':'Rochester',
-          'KBUF':'Buffalo',
           'KNYC':'New York',
           'KPVD':'Providence',
           'KHVN':'New Haven',
           'KBDR':'Bridgeport',
-          'KFMH':'Cape Code',
+          'KFMH':'Cape Cod',
           'KHPN':'Purchase',
           'KALB':'Albany',
           'KUUU':'Newport'
@@ -70,7 +68,7 @@ def fetch_data(region, startdate, enddate):
                 frame = frame[frame.PrecipitationIn != 'T']
                 frame.PrecipitationIn = pd.to_numeric(frame.PrecipitationIn)
             frame = frame[frame.PrecipitationIn >= 0.0]    
-            frames.append(frame)
+            frames.append(frame.drop_duplicates(subset='EST'))
     return pd.concat(frames).set_index("EST")
 
 def dictdf(munis, startdate, enddate):
