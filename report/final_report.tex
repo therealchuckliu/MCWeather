@@ -70,6 +70,12 @@ Statistcal weather modelling has a long tradition. In this project we apply diff
 %%-------------------------------                              Introduction                               -------------------------------%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
+Traditional local and global weather modelling hugely relies on numerical simulations as well as statistical techniques. With the development and increasing popularity of Machine Learning algorithms in a Bayesian context, this project aims at serving as a study of techniques demonstrated along examples on how Bayesian techniques could be used for a data based approach in weather modelling.
+\\
+\\
+Usually, weather data is collected at fixed weather stations that do not follow any particular pattern in terms of position or location. Hence, data is inherently spatially aware but not for every location data is available. Traditional approaches to infer missing data for specific locations rely either on numerical simulation results (and interpolating them) or on a local numerical simulation on a locally fine-grained grid. However, for many applications it is sufficient to use a statistical weather generator which then can be used to infer a local distribution for weather parameters. One application of this could be for example to compute the risk of heavy rain for a location where no historical weather data is available. Another would be to actually use a statistical weather generator to construct initial boundary conditions of missing points that are then fed into a numerical model.
+\\
+\\
 \label{sec:intro}
 \section{Bayesian Networks}
 \subsection{Network construction}
