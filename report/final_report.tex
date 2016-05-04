@@ -1,0 +1,77 @@
+\documentclass{article}
+\usepackage{amsmath, graphicx, amsfonts, caption, subfig, keyval}
+\usepackage[numbers]{natbib}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[boxruled,procnumbered, linesnumbered]{algorithm2e}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{csquotes}
+
+\captionsetup{justification=centering}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Rr}{\mathcal{R}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\X}{\mathcal{X}}
+\DeclareMathOperator*{\argmin}{\arg\!\min}
+
+\doublespacing
+\makeatletter
+\newcommand*{\toccontents}{\@starttoc{toc}}
+\makeatother
+
+
+\begin{document}
+\title{\Huge AM207 Final Project \\ \Large A dive into Bayesian Weather Modelling}
+\singlespacing
+\author{
+  Victor Lei\\
+           \small Institute for Applied Computational Science\\
+	\small 52 Oxford Street\\
+	\small Cambridge, MA\\
+  \texttt{vlei@g.harvard.edu }
+  \and
+   Charles Liu\\
+           \small Institute for Applied Computational Science\\
+	\small 52 Oxford Street\\
+	\small Cambridge, MA\\
+  \texttt{cliu02@g.harvard.edu}
+  \and
+  Leonhard Spiegelberg\\
+         \small Institute for Applied Computational Science\\
+	\small 52 Oxford Street\\
+	\small Cambridge, MA\\
+ \texttt{spiegelberg@g.harvard.edu}
+ \and
+   Vinay Subbiah\\
+         \small Institute for Applied Computational Science\\
+	\small 52 Oxford Street\\
+	\small Cambridge, MA\\
+ \texttt{vinaysubbiah@g.harvard.edu}
+}
+\maketitle
+\doublespacing
+\begin{abstract}
+
+\end{abstract}
+
+\vfill
+\singlespacing
+\begin{center}
+\bfseries\contentsname
+\end{center}
+\toccontents
+\clearpage
+
+\doublespacing
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%-------------------------------                              Introduction                               -------------------------------%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}\label{sec:intro}
+\onehalfspacing
+\bibliographystyle{plainnat}
+\bibliography{bibliography}
+
+\end{document}
