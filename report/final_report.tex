@@ -4,7 +4,7 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage[boxruled,procnumbered, linesnumbered]{algorithm2e}
-\usepackage[margin=1in]{geometry}
+\usepackage[margin=0.8in]{geometry}
 \usepackage{setspace}
 \onehalfspacing
 \usepackage{csquotes}
@@ -90,14 +90,28 @@ For this project we collected historical data of $18$ stations from $1960$-$2015
 \end{figure}
 Since historical weather data is usually hard to get or hidden behind paywalls, though we secured a decent amount of variables
 % (Max TemperatureF,Mean TemperatureF,Min TemperatureF,Max Dew PointF,MeanDew PointF,Min DewpointF,Max Humidity, Mean Humidity, Min Humidity, Max Sea Level PressureIn, Mean Sea Level PressureIn, Min Sea Level PressureIn, Max VisibilityMiles, Mean VisibilityMiles, Min VisibilityMiles, Max Wind SpeedMPH, Mean Wind SpeedMPH, Max Gust SpeedMPH,PrecipitationIn, CloudCover, Events, WindDirDegrees)
-we do not claim that our data base should be used for a real-world application. Instead, it serves more as a base for applying several techniques and investigating their feasibility.
+we do not claim that our data base should be used for a real-world application. Instead, it serves more as a base for applying several techniques and investigating their feasibility. The first part of our study investigates the modelling of single weather measures demonstrated along precipitation whereas the second part focuses on a state-based approach for weather events.
 \\
 \label{sec:intro}
 \section{Bayesian Networks}
+Due to its spatial awareness, a hierarchical structure based on independence is a natural candidate to model a single weather measure. Bayesian Networks have been successfully applied to model precipitation by using a combination of historical weather data and numerical simulation data \cite{SpainBN}. 
 \subsection{Network construction}
-Leo
+However, the question on how to construct the dependency graph which needs to be acyclic is non-trivial as it is a proven NP-hard problem. Thus, possible solutions often rely on greedy algorithms. In the context of weather modelling, dependency are usually inferred by a combination of manual dependencies obtained via domain knowledge and automated processing. As we do not possess any in-depth domain knowledge about weather dependencies we opted to push automatic network structure learning further by automating the whole process.\\
+One of the most popular algorithms for structural learning of a Bayesian Network is the K2 algorithm. But to make it work, an initial ordering of the nodes (i.e. stations) is needed. 
 \subsubsection{Initial Ordering}
-Leo
+We assume that stations with a fewer distance are more likely to be dependent than stations that are farer away. 
+\begin{figure}
+\centering
+\begin{tabular}{cc}
+\includegraphics[scale=0.35]{../images/euclid.png} & \includegraphics[scale=0.35]{../images/top.png} \\
+a. Minimum Spanning tree with euclidean Distance & b. Topological Ordering
+\end{tabular}
+\caption{Construction of an initial node order. Arrows denote a child-parent relation.}
+\label{fig:nodeordering}
+\end{figure}
+In a first step we construct a Minimum Spanning Tree (MST) with the euclidean distance used as edge weight (i.e. via Kruskal's algorithm\cite{kruskal}). Using this MST we select a node (typically one that has many neighbors in the MST) and perform a Breadth First Search (BFS) to obtain a topological ordering which is then used as input for the K2 algorithm. It should be noted that neither the MST nor the topological ordering are unique. Running the algorithm several times to obtain a plausible ordering is therefore strongly encouraged. Furthermore, we see this ansatz as a practical approach to get an initial dependency layout which can then be manually refined if needed (cf. \autoref{fig:nodeordering}).
+
+
 \subsubsection{K2 algorithm}
 Charles
 \subsection{Inference}
