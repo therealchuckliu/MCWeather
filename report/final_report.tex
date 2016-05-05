@@ -118,7 +118,16 @@ Charles
 \subsubsection{Direct Sampling}
 Charles your call
 \subsubsection{Monte Carlo / Gibbs Sampling}
-Leo
+Another approach to sample the Bayesian Network is to use Gibbs Sampling. Let $X^{(t)} := \begin{bmatrix} X_1^{(t)} &  ... & X_n^{(t)} \end{bmatrix}^T$ a vector of random variables describing the current state of each of $n$ nodes at time $t$. Then we can sample a new state vector by picking randomly one $X_i^{(t)}$ and sampling a new representation of it by conditioning on the other variables, i.e. draw $X_i^{(t+1)} \sim \mathbb{P}(X_i^{(t)} \vert X_1^{(t)} , ..., X_{i-1}^{(t)},X_{i+1}^{(t)}, X_{n}^{(t)})$. For Bayesian networks we know that conditioning on $X_1^{(t)} , ..., X_{i-1}^{(t)},X_{i+1}^{(t)}, X_{n}^{(t)}$ is equal to conditioning on the parents, the children, and the parents of the children of $X_i$.The set of these nodes is also called the markov blanket of $X_i$ \cite{gibbsnips}. Repeating this process will eventually converge to the distribution as implied by the Bayesian Network's model (cf. \autoref{fig:gibbssampling}).
+\begin{figure}
+\centering
+\begin{tabular}{cc}
+\includegraphics[scale=0.35]{../images/gibbs.png} & \includegraphics[scale=0.35]{../images/geweke.png} \\
+a. Inference using Gibbs Sampling for Boston & b. Geweke test statistic
+\end{tabular}
+\caption{Exemplary stochastic precipitation generator for Boston using Gibbs Sampling. Due to complexity of data many samples are needed for convergence.}
+\label{fig:gibbssampling}
+\end{figure}
 \subsection{Application}
 Charles again
 
