@@ -11,3 +11,4 @@ Notebooks
 #########
 01_DataScrape - using functions from datascrape.py to pull weather data test formatting
 02_Bayesian_Networks - notebook for bayesian network analysis
+03_Hierarchical_Rainfall - notebook for modelling rainfall volume
