@@ -4,7 +4,7 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage[boxruled,procnumbered, linesnumbered]{algorithm2e}
-\usepackage[margin=0.8in]{geometry}
+\usepackage[margin=0.5in]{geometry}
 \usepackage{setspace}
 \onehalfspacing
 \usepackage{csquotes}
@@ -71,7 +71,7 @@ Statistcal weather modelling has a long tradition. In this project we apply diff
 \toccontents
 \clearpage
 
-\doublespacing
+\singlespacing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%-------------------------------                              Introduction                               -------------------------------%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -112,15 +112,120 @@ a. Minimum Spanning tree with euclidean Distance & b. Topological Ordering
 In a first step we construct a Minimum Spanning Tree (MST) with the euclidean distance used as edge weight (i.e. via Kruskal's algorithm\cite{kruskal}). Using this MST we select a node (typically one that has many neighbors in the MST) and perform a Breadth First Search (BFS) to obtain a topological ordering which is then used as input for the K2 algorithm. It should be noted that neither the MST nor the topological ordering are unique. Running the algorithm several times to obtain a plausible ordering is therefore strongly encouraged. Furthermore, we see this ansatz as a practical approach to get an initial dependency layout which can then be manually refined if needed (cf. \autoref{fig:nodeordering}).
 
 
-\subsubsection{K2 algorithm}
-Charles
+\subsubsection{K2 + Simulated Annealing}
+We created six buckets of precipitation levels - other than the first bucket which indicates no rain, the latter five were manually adjusted to have similar counts. K2 is a greedy algorithm based on our ordering heuristic. We define the probability that a node $i$ has parents $\pi_i$ as:
+\begin{eqnarray*}
+  f(i, \pi_i) &=& \prod\limits_{j=1}^{q_i} \frac{(r-1)!}{(N_{ij} + r - 1)!} \prod\limits_{k=1}^{r} \alpha_{ijk}!\\
+  \text{where}\\
+  q_i &:& |\{\text{Permutations of values for $\pi_i$}\}|\\
+  r &:& |\{\text{Number of precipitation levels}\}|\\
+  \alpha_{ijk} &:& |\{\text{node i with value $k$, parents $\pi_i$ with permutation j}\}|\\
+  N_{ij} &:& \sum\limits_{k=1}^{r} \alpha_{ijk}
+\end{eqnarray*}
+
+Using this probability, we iterate through the ordering and for each node $i$ do the following:
+\begin{displayquote}
+\begin{enumerate}
+  \item Calculate base probability with no parents
+  \item Select the node preceding $i$ in the ordering that maximizes the probability
+  \item If probability is greater than base probability:
+    \begin{itemize}
+      \item Update base probability
+      \item Add node to list of parents
+      \item Go back to 2
+    \end{itemize}
+  \item Otherwise return node's parents
+\end{enumerate}
+\end{displayquote}
+
+\begin{figure}
+\centering
+\begin{tabular}{cc}
+\includegraphics[scale=0.35]{../images/SA_BayesNet.png} & \includegraphics[scale=0.35]{../images/ordering.png} \\
+a. Simulated Annealing & b. Final Bayesian Network
+\end{tabular}
+\caption{Simulating Annealing on K2 algorithm and resulting structure.}
+\label{fig:bayesnet}
+\end{figure}
+
+As this algorithm is greedy, it has no guarantees on being optimal. We took the resulting structure from the K2 algorithm and ran Simulated Annealing, randomly selecting parents for a node based on temperature. Over 1000 iterations we saw only nine improvements, but the resulting dependency structure seems reasonable [cf. \autoref{fig:bayesnet}].
+
 \subsection{Inference}
 \subsubsection{Direct Sampling}
-Charles your call
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{../images/rej_samp.png}
+\caption{Rejection Sampling For Inferring Boston Precipitation.}
+\label{fig:rejsamp}
+\end{figure}
+
+We used rejection sampling as a simple method to infer historical precipitation levels. Using the empirical data, a sample is created by iterating through the node ordering and sampling from the conditional probability distribution based on the parent nodes. We tried to model the precipitation levels of Boston via it's parents in our network. For each historical data point we created many samples, rejecting those where the parents' precipitation levels didn't match with those from the historical data point. The resulting distribution was then sampled to obtain the precipitation level for Boston that day [cf. \autoref{fig:rejsamp}].
+
+
 \subsubsection{Monte Carlo / Gibbs Sampling}
-Leo
+Another approach to sample the Bayesian Network is to use Gibbs Sampling. Let $X^{(t)} := \begin{bmatrix} X_1^{(t)} &  ... & X_n^{(t)} \end{bmatrix}^T$ a vector of random variables describing the current state of each of $n$ nodes at time $t$. Then we can sample a new state vector by picking randomly one $X_i^{(t)}$ and sampling a new representation of it by conditioning on the other variables, i.e. draw $X_i^{(t+1)} \sim \mathbb{P}(X_i^{(t)} \vert X_1^{(t)} , ..., X_{i-1}^{(t)},X_{i+1}^{(t)}, X_{n}^{(t)})$. For Bayesian networks we know that conditioning on $X_1^{(t)} , ..., X_{i-1}^{(t)},X_{i+1}^{(t)}, X_{n}^{(t)}$ is equal to conditioning on the parents, the children, and the parents of the children of $X_i$.The set of these nodes is also called the markov blanket of $X_i$ \cite{gibbsnips}. Repeating this process will eventually converge to the distribution as implied by the Bayesian Network's model (cf. \autoref{fig:gibbssampling}).
+\begin{figure}
+\centering
+\begin{tabular}{cc}
+\includegraphics[scale=0.35]{../images/gibbs.png} & \includegraphics[scale=0.35]{../images/geweke.png} \\
+a. Inference using Gibbs Sampling for Boston & b. Geweke test statistic
+\end{tabular}
+\caption{Exemplary stochastic precipitation generator for Boston using Gibbs Sampling. Due to complexity of data many samples are needed for convergence.}
+\label{fig:gibbssampling}
+\end{figure}
+
 \subsection{Application}
-Charles again
+The Bayesian Network assumes that weather properties for a particular region are derived from other local regions. While our model only relies on precipitation data, it can easily be extended to include models on atmospheric pressure and the like. The motivation for this would be to infer some properties of a region where weather data is hard to find - an ordering that ends on that region would then create its dependency structure. It can also be used for filling in missing historical data - in our case some regions such as Boston had nearly every data point between 1960 to 2015 (around 20K points), whereas others had far fewer. We found the intersection of common dates between all 18 regions was only around 5000 points, so one potential use case would be to look through the missing data and try to infer its precipitation levels through available data from the network.
+
+\section{Bayesian Hierarchical Modeling of Rainfall Volume}
+Rainfall models are typically focused on two issues: 
+\begin{enumerate}
+\item the probability of any rainfall; and
+\item the volume of rainfall when it does rain.
+\end{enumerate}
+Here, we are focused on the second question. Traditional models for rainfall volume have found that the daily rainfall volume typically follows a Gamma distribution with shape parameter $\alpha$ and rate parameter $\frac{\alpha}{\mu}$ such that the expected volume of rainfall for each day is $\mu$. \cite{buishand}
+
+Coe et al. \cite{coe} made the simplification that that the shape parameter for the Gamma distribution would remain constant, citing previous studies that made this same claim. Instead, they focused on the $\mu$ variable  which could vary over time by the generalized linear model $\mu = h( g(t) )$. $h$ is some known function like an exponential, and $g$ is some functional form that describes the variation in the mean rainfall volume over time, such as a polynomial or Fourier series. Based on these ideas, we make two contributions that extend the discussion from the paper: producing a two-period annual model for rainfall volume with a variable switching-point, and assessing whether the shape parameter remains constant using this two-period model as has been claimed in previous works.
+
+\subsection{The case of New Bedford, MA}
+\begin{figure}
+\centering
+\begin{tabular}{cc}
+\includegraphics[scale=0.35]{../images/nbed_2015_rainfall_timeline.png} & \includegraphics[scale=0.35]{../images/nbed_2015_rainfall_hist.png} \\
+a. Precipitation over time & b. Histogram
+\end{tabular}
+\caption{Precipitation in New Bedford, MA during 2015.}
+\label{fig:nbed2015_timeline}
+\end{figure}
+
+After analyzing plots of rainfall volume over time, we found at times, there appeared to be a lower volume of daily rainfall in the early part of the calendar year, followed by a marked increase towards the middle of the year.  We use the idea from Coe et al. of a time-varying $\mu$, but rather than fitting GLMs, we used the observation of this apparent increase in daily rainfall volume somewhere during the middle of the year to create a 'swtiching point' $s$ that breaks the annual rainfall volume into 2 separate Gamma distributions. We selected a rainy city that exhibited this behavior and focused on the 2015 data set as an example.
+
+Logically, this idea makes sense since we might expect some seasons to produce a greater volume of rain than other seasons. We could also have done four switch points to coincide with the seasons, or 12 switching points to account for each month, but from the plots for New Bedford it appears two is sufficient to describe most of the variation and still retain a reasonable amount of data for the fitting process (there are around 100-120 rain days per year.) This may vary depending on the city and the year.
+
+\subsection{Core intuition}
+The key idea here is that the switching point segments the year so we retain some of the underlying time-based variability over the different seasons. Using pyMC, we can expose this switch point as another variable that we estimate on, and can then produce two separate models for rainfall volume. Compared to a fixed model that looks at the changing point for each season, this has the advantage of accounting for unusually short or long seasons, as is becoming increasingly common in recent years, plus we get uncertainty estimates for the switch point $s$.
+
+This idea of a switching point is not necessarily going to apply well to all cities in all years; the climate is very variable and the underlying assumptions that exist for this model may not be present. However, as demonstrated here, we believe this technique of creating a switching point could be an interesting avenue used to explore and extend existing rainfall models.
+
+\subsection{Results}
+We fitted a standard Gamma distribution against the daily rainfall volume for the entire year, and then compared that to the results we obtained from fitting a two-period model with a variable switching point. We tried estimating both the shape and rate parameter separately, as well fixing the shape parameter across both models. In order to keep it brief, the results below are for fitting both the switching point, and the shape and rate parameters separately; further results are available in the notebook.
+
+\begin{figure}
+\centering
+\begin{tabular}{cc}
+\includegraphics[scale=0.35]{../images/split_gamma_res_1.png} & \includegraphics[scale=0.35]{../images/split_gamma_res_2.png} \\
+a. 1st-half Gamma model & b. 2nd-half Gamma model
+\end{tabular}
+\caption{Fitting a 2-period Gamma model with variable switching point.}
+\label{fig:split_gamma_res}
+\end{figure}
+
+As the results show, the Gamma model for the first part of the year does a better job of increasing the likelihood of lower rain volumes while decreasing the likelihood of higher rain volumes. The second part does the opposite, which is what we expect to see since it appears rainfall volume is higher during the second part of the year. So on the whole, we get a greater level of granularity and accuracy from creating this split model versus having a single model for the entire year.
+
+The differences between the $\mu$ variable across the two Gamma models appear to be statistically significant, but the difference between the $\alpha$ variable appears to be only weakly significant. So the previous studies on the constant $\alpha$ variable are correct, at least in this instance.
+
+\subsection{Next steps}
+The key idea of the switching point can clearly be extended further, such as creating additional switching points. We can also make the 2-period model more robust by making the start and end points variable so that they do not need to coincide with the start and end of the calendar year; this would require an additional switching point. We might also consider the circumstances under which this model might work and when it might not, for example the geographical location of cities this would apply to, the types of climate in those cities, and which years.
 
 \section{Hidden Markov Models}
 
