@@ -85,7 +85,7 @@ Usually, weather data is collected at fixed weather stations that do not follow 
 For this project we collected historical data of $18$ stations from $1960$-$2015$ around Boston from \url{wunderground.com}. 
 \begin{figure}
 \centering
-\includegraphics[scale=0.5]{../images/top_stations.png}
+\includegraphics[scale=0.48]{../images/top_stations.png}
 \caption{Illustration of the $18$ stations which data has been used for this project with weather stations being located next to airports.}
 \end{figure}
 Since historical weather data is usually hard to get or hidden behind paywalls, though we secured a decent amount of variables
@@ -255,7 +255,9 @@ Over the five year test period, the model had an overall inference accuracy of o
 \subsection{Next Steps}
 
 Some extensions to the above model have been studied further in the notebook including the stationarity of the transition probabilities over the 50 year training period and a possible third order model for improved inference. 
-As next steps, this model can be further extended by including more observation parameters that would express different aspects of the hidden states or more appropriate parameters like the max/min instead of the mean. Fundamentally, this analysis helps us infer weather events in places/times where we can't directly experience it as in the past/future, or on a different planet for which we only have weather measures. 
+As next steps, this model can be further extended by including more observation parameters that would express different aspects of the hidden states or more appropriate parameters like the max/min instead of the mean. Fundamentally, this analysis helps us infer weather events in places/times where we can't directly experience it as in the past/future, or on a different planet for which we only have weather measures. 
+
+
 
 
 
