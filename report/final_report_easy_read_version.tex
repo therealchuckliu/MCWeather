@@ -35,26 +35,26 @@
 \author{
   Victor Lei\\
            \small Institute for Applied Computational Science\\
-	\small 52 Oxford Street\\
-	\small Cambridge, MA\\
+  \small 52 Oxford Street\\
+  \small Cambridge, MA\\
   \texttt{vlei@g.harvard.edu }
   \and
    Charles Liu\\
            \small Institute for Applied Computational Science\\
-	\small 52 Oxford Street\\
-	\small Cambridge, MA\\
+  \small 52 Oxford Street\\
+  \small Cambridge, MA\\
   \texttt{cliu02@g.harvard.edu}
   \and
   Leonhard Spiegelberg\\
          \small Institute for Applied Computational Science\\
-	\small 52 Oxford Street\\
-	\small Cambridge, MA\\
+  \small 52 Oxford Street\\
+  \small Cambridge, MA\\
  \texttt{spiegelberg@g.harvard.edu}
  \and
    Vinay Subbiah\\
          \small Institute for Applied Computational Science\\
-	\small 52 Oxford Street\\
-	\small Cambridge, MA\\
+  \small 52 Oxford Street\\
+  \small Cambridge, MA\\
  \texttt{vinaysubbiah@g.harvard.edu}
 }
 \maketitle
@@ -100,7 +100,7 @@ Due to its spatial awareness, a hierarchical structure based on independence is 
 However, the question on how to construct the dependency graph which needs to be acyclic is non-trivial as it is a proven NP-hard problem. Thus, possible solutions often rely on greedy algorithms. In the context of weather modeling, dependency are usually inferred by a combination of manual dependencies obtained via domain knowledge and automated processing. As we do not possess any in-depth domain knowledge about weather dependencies we opted to push automatic network structure learning further by automating the whole process.\\
 One of the most popular algorithms for structural learning of a Bayesian Network is the K2 algorithm. But to make it work, an initial ordering of the nodes (i.e. stations) is needed. 
 \subsubsection{Initial Ordering}
-We assume that stations with a fewer distance are more likely to be dependent than stations that are farer away. 
+We assume that stations with a fewer distance are more likely to be dependent than stations that are farther away. 
 \begin{figure}
 \centering
 \begin{tabular}{cc}
@@ -150,6 +150,7 @@ a. Simulated Annealing & b. Final Bayesian Network
 \end{figure}
 
 As this algorithm is greedy, it has no guarantees on being optimal. We took the resulting structure from the K2 algorithm and ran Simulated Annealing, randomly selecting parents for a node based on temperature. Over 1000 iterations we saw only nine improvements, but the resulting dependency structure seems reasonable [cf. \autoref{fig:bayesnet}].
+
 \subsection{Inference}
 \subsubsection{Direct Sampling}
 \begin{figure}
@@ -191,7 +192,7 @@ Coe et al. \cite{coe} made the simplification that that the shape parameter for 
 \begin{figure}
 \centering
 \begin{tabular}{cc}
-\includegraphics[scale=0.3]{../images/nbed_2015_rainfall_timeline.png} & \includegraphics[scale=0.3]{../images/nbed_2015_rainfall_hist.png} \\
+\includegraphics[scale=0.32]{../images/nbed_2015_rainfall_timeline.png} & \includegraphics[scale=0.32]{../images/nbed_2015_rainfall_hist.png} \\
 a. Precipitation over time & b. Histogram
 \end{tabular}
 \caption{Precipitation in New Bedford, MA during 2015.}
@@ -213,7 +214,7 @@ We fitted a standard Gamma distribution against the daily rainfall volume for th
 \begin{figure}
 \centering
 \begin{tabular}{cc}
-\includegraphics[scale=0.3]{../images/split_gamma_res_1.png} & \includegraphics[scale=0.3]{../images/split_gamma_res_2.png} \\
+\includegraphics[scale=0.32]{../images/split_gamma_res_1.png} & \includegraphics[scale=0.32]{../images/split_gamma_res_2.png} \\
 a. 1st-half Gamma model & b. 2nd-half Gamma model
 \end{tabular}
 \caption{Fitting a 2-period Gamma model with variable switching point.}
@@ -239,10 +240,10 @@ The model was trained on 50 years of data (1st Jan 1960 to 31st Dec 2010) and te
 
 \subsection{Model}
 
-The architecture of the model which is a second order Hidden Markov Model \autoref{fig:HMM_states_obs}. Given the data available, our model does not require an expectation maximization framework to estimate the emission probabilities or transition probabilities. Instead, to model the emission probabilities, we modeled each of the observations as either a Gaussian distribution or a Log-normal distribution. We inferred the corresponding distribution parameters from the historical data. We then constructed a multivariate Gaussian representing the probability of a vector of observations corresponding to a particular hidden state. To model the transition probabilities, we simply counted the state transitions between the discrete weather events available in our labeled data. We also used a naive estimate of the initial state probability for our model. 
+The architecture of the model which is a second order Hidden Markov Model [cf. \autoref{fig:HMM_states_obs}]. Given the data available, our model does not require an expectation maximization framework to estimate the emission probabilities or transition probabilities. Instead, to model the emission probabilities, we modeled each of the observations as either a Gaussian distribution or a Log-normal distribution. We inferred the corresponding distribution parameters from the historical data. We then constructed a multivariate Gaussian representing the probability of a vector of observations corresponding to a particular hidden state. To model the transition probabilities, we simply counted the state transitions between the discrete weather events available in our labeled data. We also used a naive estimate of the initial state probability for our model. 
 \\
 \\
-To infer the weather events on each day over our test period, we ran an extended Viterbi algorithm to infer the most probable sequence of hidden states given the observations over the five year test period. Using the recursive tracing approach, introduced by \citeauthor{He} \cite{He}, to evaluate the maximum a posteriori estimation of the second order HMM is easily extendable to higher order models to improve the inference accuracy further.      
+To infer the weather events on each day over our test period, we ran an extended Viterbi algorithm to infer the most probable sequence of hidden states given the observations over the five year test period. Using the recursive tracing approach, introduced by \citeauthor{He} \cite{He}, evaluating the maximum a posteriori estimation of the second order HMM is easily extendable to higher order models to improve the inference accuracy further.      
  
 \begin{figure}
 \centering            
@@ -253,7 +254,7 @@ To infer the weather events on each day over our test period, we ran an extended
 
 \subsection{Results}
 
-Over the five year test period, the model had an overall accuracy of over $65\%$ (cf. \autoref{fig:HMM_results}(. Particularly, the model did well to infer extreme events like thunderstorms and specific events like Fog days as can been seen in \autoref{fig:HMM_results}. The model did less well on highly overlapping events like Rain, Rain-Snow or Fog-Snow. However, still considerably better than a naïve baseline. Furthermore, even for the worst performing states, from an end-user standpoint, this is not as bad as it seems. In this problem, there is an inherent ordering of the hidden states, with some states being closer to each other than others. For example,  Rain-Snow, Rain and Fog-Rain-Snow are more similar to each other than to Fog days or Normal days which implies that such a misclassification is less impactful than would seem initially. The confusion matrix indicates the same and is discussed with further detail in the accompanying notebook.  
+Over the five year test period, the model had an overall accuracy of over $65\%$ [cf. \autoref{fig:HMM_results}]. Particularly, the model did well to infer extreme events like thunderstorms and specific events like Fog days as can been seen in \autoref{fig:HMM_results}. The model did less well on highly overlapping events like Rain, Rain-Snow or Fog-Snow. However, still considerably better than a naïve baseline. Furthermore, even for the worst performing states, from an end-user standpoint, this is not as bad as it seems. In this problem, there is an inherent ordering of the hidden states, with some states being closer to each other than others. For example,  Rain-Snow, Rain and Fog-Rain-Snow are more similar to each other than to Fog days or Normal days which implies that such a misclassification is less impactful than would seem initially. The confusion matrix indicates the same and is discussed with further detail in the accompanying notebook.  
 
 \begin{figure}
 \centering            
