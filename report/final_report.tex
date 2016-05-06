@@ -229,7 +229,7 @@ The key idea of the switching point can clearly be extended further, such as cre
 
 \section{Hidden Markov Models}
 
-Weather is often very hard to predict through purely statistical methods even when we have a sense of the weather measures. Nevertheless, we have attempted to model weather events based on weather measures using a second order Hidden Markov Model. This then provides a hierarchical framework through which to predict and study weather starting from Bayesian methods to model a specific weather measure like precipitation (as discussed above) all the way through to modeling and predicting specific weather events like Rain or Snow. Specifically, we are interested in seeing how well we can predict extreme weather events or other specific events like Fog days that have an adverse impact on people and society. In a similar study carried out by Betro, Bodini and Cossu, it has been demonstrated that HMMs are a reasonable model to attack this problem with the key underlying assumption that there exists discrete weather states corresponding to the hidden states of our model.  
+Weather is often very hard to predict through purely statistical methods even when we have a sense of the weather measures. Nevertheless, we have attempted to model weather events based on weather measures using a second order Hidden Markov Model. This then provides a hierarchical framework through which to predict and study weather starting from Bayesian methods to model a specific weather measure like precipitation (as discussed above) all the way through to modeling and predicting specific weather events like Rain or Snow. Specifically, we are interested in seeing how well we can predict extreme weather events or other specific events like Fog days that have an adverse impact on people and society. In a similar study carried out by Betro, Bodini and Cossu \cite{Betro}, it has been demonstrated that HMMs are a reasonable model to attack this problem with the key underlying assumption that there exists discrete weather states corresponding to the hidden states of our model.  
 
 \subsection{Data}
 
@@ -239,18 +239,27 @@ The model was trained on 50 years of data (1st Jan 1960 to 31st Dec 2010) and te
 
 \subsection{Model}
 
-The model that was implemented is a second order Hidden Markov Model. Given the data available, our model does not require an expectation maximization framework to estimate the emissions probabilities or transition probabilities. Instead, to model the emissions probabilities, we modeled each of the observations as either a Gaussian distribution or a Log-normal distribution. We inferred the corresponding distribution parameters from the historical data available. We then constructed a multivariate Gaussian representing the probability of a vector of observations corresponding to a particular hidden state. To model the transition probabilities, we simply counted the state transitions between the discrete weather events available in our labeled data. We also used a naive estimate of the initial state probability for our model. 
+The model that was implemented is a second order Hidden Markov Model \autoref{fig:HMM_states_obs}. Given the data available, our model does not require an expectation maximization framework to estimate the emissions probabilities or transition probabilities. Instead, to model the emissions probabilities, we modeled each of the observations as either a Gaussian distribution or a Log-normal distribution. We inferred the corresponding distribution parameters from the historical data available. We then constructed a multivariate Gaussian representing the probability of a vector of observations corresponding to a particular hidden state. To model the transition probabilities, we simply counted the state transitions between the discrete weather events available in our labeled data. We also used a naive estimate of the initial state probability for our model. 
 
-To infer the weather events on each day over our test period, we ran an extended Viterbi algorithm to infer the most probable sequence of hidden states given the observations over the five year test period. Using the recursive tracing approach, introduced by He, to evaluate the maximum a posteriori estimation of the second order HMM makes it easy to extend to higher order models for improved inference accuracy.      
-            
+To infer the weather events on each day over our test period, we ran an extended Viterbi algorithm to infer the most probable sequence of hidden states given the observations over the five year test period. Using the recursive tracing approach, introduced by He \cite{He}, to evaluate the maximum a posteriori estimation of the second order HMM makes it easy to extend to higher order models for improved inference accuracy.      
+ 
+\begin{figure}
+\centering            
 \includegraphics[scale=0.5]{../images/HMM_HS_O.png} 
-
+\caption{Second order HMM with 9 hidden states and 7 observations}
+\label{fig:HMM_states_obs}
+\end{figure}
 
 \subsection{Results}
 
-Over the five year test period, the model had an overall inference accuracy of over 65\%. Specifically, the model did well to infer extreme events like thunderstorms and specific events like Fog days as can been seen in the figure below. The model did less well on highly overlapping events like Rain, Rain-Snow, Fog-Snow etc. However, still considerably better than a naïve baseline. Furthermore, even for the worst performing states, from an end-user standpoint, this isn't as bad as it seems. In this problem, there is an inherent ordering of the hidden states, with some states being closer to each other than others. For example,  Rain-Snow, Rain and Fog-Rain-Snow are more similar to each other than to Fog days or Normal days which implies that such a misclassification is less impactful than would seem initially. The confusion matrix indicates the same and for the sake of brevity is discussed in the notebook.  
+Over the five year test period, the model had an overall inference accuracy of over 65\% \autoref{fig:HMM_results}. Specifically, the model did well to infer extreme events like thunderstorms and specific events like Fog days as can been seen in the figure below. The model did less well on highly overlapping events like Rain, Rain-Snow, Fog-Snow etc. However, still considerably better than a naïve baseline. Furthermore, even for the worst performing states, from an end-user standpoint, this isn't as bad as it seems. In this problem, there is an inherent ordering of the hidden states, with some states being closer to each other than others. For example,  Rain-Snow, Rain and Fog-Rain-Snow are more similar to each other than to Fog days or Normal days which implies that such a misclassification is less impactful than would seem initially. The confusion matrix indicates the same and for the sake of brevity is discussed in the notebook.  
 
+\begin{figure}
+\centering            
 \includegraphics[scale=0.5]{../images/HMM_results.pdf} 
+\caption{Inference accuracy over the five year test period}
+\label{fig:HMM_results}
+\end{figure}
 
 \subsection{Next Steps}
 
