@@ -24,8 +24,8 @@
 
 
 % for the code & figure placement
-\usepackage{minted}
-\usemintedstyle{pastie}
+%\usepackage{minted}
+%\usemintedstyle{pastie}
 \usepackage{float}
 \floatplacement{figure}{H} % force figures to be placed always at defined position!
 
@@ -198,7 +198,7 @@ a. Precipitation over time & b. Histogram
 \label{fig:nbed2015_timeline}
 \end{figure}
 
-After analyzing plots of rainfall volume over time, we found at times, there appeared to be a lower volume of daily rainfall in the early part of the calendar year, followed by a marked increase towards the middle of the year.  We use the idea from Coe et al. of a time-varying $\mu$, but rather than fitting GLMs, we used the observation of this apparent increase in daily rainfall volume somewhere during the middle of the year to create a 'swtiching point' $s$ that breaks the annual rainfall volume into 2 separate Gamma distributions. We selected a rainy city that exhibited this behavior and focused on the 2015 data set as an example.
+After analyzing plots of rainfall volume over time, we found at times, there appeared to be a lower volume of daily rainfall in the early part of the calendar year, followed by a marked increase towards the middle of the year.  We use the idea from Coe et al. of a time-varying $\mu$, but rather than fitting GLMs, we used the observation of this apparent increase in daily rainfall volume somewhere during the middle of the year to create a 'switching point' $s$ that breaks the annual rainfall volume into 2 separate Gamma distributions. We selected a rainy city that exhibited this behavior and focused on the 2015 data set as an example.
 
 Logically, this idea makes sense since we might expect some seasons to produce a greater volume of rain than other seasons. We could also have done four switch points to coincide with the seasons, or 12 switching points to account for each month, but from the plots for New Bedford it appears two is sufficient to describe most of the variation and still retain a reasonable amount of data for the fitting process (there are around 100-120 rain days per year.) This may vary depending on the city and the year.
 
@@ -228,6 +228,40 @@ The differences between the $\mu$ variable across the two Gamma models appear to
 The key idea of the switching point can clearly be extended further, such as creating additional switching points. We can also make the 2-period model more robust by making the start and end points variable so that they do not need to coincide with the start and end of the calendar year; this would require an additional switching point. We might also consider the circumstances under which this model might work and when it might not, for example the geographical location of cities this would apply to, the types of climate in those cities, and which years.
 
 \section{Hidden Markov Models}
+
+Weather is often very hard to predict through purely statistical methods even when we have a sense of the weather measures. Nevertheless, we have attempted to model weather events based on weather measures using a second order Hidden Markov Model. This then provides a hierarchical framework through which to predict and study weather starting from Bayesian methods to model a specific weather measure like precipitation (as discussed above) all the way through to modeling and predicting specific weather events like Rain or Snow. Specifically, we are interested in seeing how well we can predict extreme weather events or other specific events like Fog days that have an adverse impact on people and society. In a similar study carried out by Betro, Bodini and Cossu, it has been demonstrated that HMMs are a reasonable model to attack this problem with the key underlying assumption that there exists discrete weather states corresponding to the hidden states of our model.  
+
+\subsection{Data}
+
+For our study, we have decided to focus on Boston, MA as we have reliable data going back more than 50 years across a wide range of weather measures. We have 19 discrete labels on our data representing weather events that correspond to a condensed 9 hidden states in our model. This mapping was chosen to ensure each hidden state had a minimum number of data points for statistical analysis. The bucketing chosen also ensures that only neighboring events in terms of similarity were bucketed together. For example, Rain-Snow-Thunderstorm, Fog-Rain-Snow-Thunderstorm and Rain-Hail-Thunderstorm were all considered to simply be Thunderstorms. The observed states in our model correspond to 7 continuous real-valued weather measures like Mean Humidity, Mean Wind Speed etc. 
+
+The model was trained on 50 years of data (1st Jan 1960 to 31st Dec 2010) and tested on the following five years (Jan 1st 2011 to Dec 31st 2015).
+
+\subsection{Model}
+
+The model that was implemented is a second order Hidden Markov Model. Given the data available, our model does not require an expectation maximization framework to estimate the emissions probabilities or transition probabilities. Instead, to model the emissions probabilities, we modeled each of the observations as either a Gaussian distribution or a Log-normal distribution. We inferred the corresponding distribution parameters from the historical data available. We then constructed a multivariate Gaussian representing the probability of a vector of observations corresponding to a particular hidden state. To model the transition probabilities, we simply counted the state transitions between the discrete weather events available in our labeled data. We also used a naive estimate of the initial state probability for our model. 
+
+To infer the weather events on each day over our test period, we ran an extended Viterbi algorithm to infer the most probable sequence of hidden states given the observations over the five year test period. Using the recursive tracing approach, introduced by He, to evaluate the maximum a posteriori estimation of the second order HMM makes it easy to extend to higher order models for improved inference accuracy.      
+            
+\includegraphics[scale=0.5]{../images/HMM_HS_O.png} 
+
+
+\subsection{Results}
+
+Over the five year test period, the model had an overall inference accuracy of over 65\%. Specifically, the model did well to infer extreme events like thunderstorms and specific events like Fog days as can been seen in the figure below. The model did less well on highly overlapping events like Rain, Rain-Snow, Fog-Snow etc. However, still considerably better than a naïve baseline. Furthermore, even for the worst performing states, from an end-user standpoint, this isn't as bad as it seems. In this problem, there is an inherent ordering of the hidden states, with some states being closer to each other than others. For example,  Rain-Snow, Rain and Fog-Rain-Snow are more similar to each other than to Fog days or Normal days which implies that such a misclassification is less impactful than would seem initially. The confusion matrix indicates the same and for the sake of brevity is discussed in the notebook.  
+
+\includegraphics[scale=0.5]{../images/HMM_results.pdf} 
+
+\subsection{Next Steps}
+
+Some extensions to the above model have been studied further in the notebook including the stationarity of the transition probabilities over the 50 year training period and a possible third order model for improved inference. 
+As next steps, this model can be further extended by including more observation parameters that would express different aspects of the hidden states or more appropriate parameters like the max/min instead of the mean. Fundamentally, this analysis helps us infer weather events in places/times where we can't directly experience it as in the past/future, or on a different planet for which we only have weather measures. 
+
+
+
+
+
+
 
 
 %% print out bib
