@@ -174,7 +174,7 @@ a. Inference using Gibbs Sampling for Boston & b. Geweke test statistic
 \label{fig:gibbssampling}
 \end{figure}
 
-\subsection{Application}
+\subsection{Next steps}
 The Bayesian Network assumes that weather properties for a particular region are derived from other local regions. While our model only relies on precipitation data, it can easily be extended to include models on atmospheric pressure and the like. The motivation for this would be to infer some properties of a region where weather data is hard to find - an ordering that ends on that region would then create its dependency structure. It can also be used for filling in missing historical data - in our case some regions such as Boston had nearly every data point between 1960 to 2015 (around 20K points), whereas others had far fewer. We found the intersection of common dates between all 18 regions was only around 5000 points, so one potential use case would be to look through the missing data and try to infer its precipitation levels through available data from the network.
 
 \section{Bayesian Hierarchical Modeling of Rainfall Volume}
@@ -227,21 +227,22 @@ The differences between the $\mu$ variable across the two Gamma models appear to
 \subsection{Next steps}
 The key idea of the switching point can clearly be extended further, such as creating additional switching points. We can also make the 2-period model more robust by making the start and end points variable so that they do not need to coincide with the start and end of the calendar year; this would require an additional switching point. We might also consider the circumstances under which this model might work and when it might not, for example the geographical location of cities this would apply to, the types of climate in those cities, and which years.
 
-\section{Hidden Markov Models}
+\section{Hidden Markov Model}
 
 Weather is often very hard to predict through purely statistical methods even when we have a sense of the weather measures. Nevertheless, we have attempted to model weather events based on weather measures using a second order Hidden Markov Model. This then provides a hierarchical framework through which to predict and study weather starting from Bayesian methods to model a specific weather measure like precipitation (as discussed above) all the way through to modeling and predicting specific weather events like Rain or Snow. Specifically, we are interested in seeing how well we can predict extreme weather events or other specific events like Fog days that have an adverse impact on people and society. In a similar study carried out by Betro, Bodini and Cossu \cite{Betro}, it has been demonstrated that HMMs are a reasonable model to attack this problem with the key underlying assumption that there exists discrete weather states corresponding to the hidden states of our model.  
 
 \subsection{Data}
 
-For our study, we have decided to focus on Boston, MA as we have reliable data going back more than 50 years across a wide range of weather measures. We have 19 discrete labels on our data representing weather events that correspond to a condensed 9 hidden states in our model. This mapping was chosen to ensure each hidden state had a minimum number of data points for statistical analysis. The bucketing chosen also ensures that only neighboring events in terms of similarity were bucketed together. For example, Rain-Snow-Thunderstorm, Fog-Rain-Snow-Thunderstorm and Rain-Hail-Thunderstorm were all considered to simply be Thunderstorms. The observed states in our model correspond to 7 continuous real-valued weather measures like Mean Humidity, Mean Wind Speed etc. 
+For our study, we have decided to focus on Boston, MA as we have reliable data going back more than $50$ years across a wide range of weather measures. We have $19$ discrete labels on our data representing weather events that correspond to a condensed $9$ hidden states in our model. This mapping was chosen to ensure each hidden state had a minimum number of data points for statistical analysis. The bucketing chosen also ensures that only neighboring events in terms of similarity were bucketed together. For example, Rain-Snow-Thunderstorm, Fog-Rain-Snow-Thunderstorm and Rain-Hail-Thunderstorm were all considered to simply be Thunderstorms. The observed states in our model correspond to 7 continuous real-valued weather measures like Mean Humidity, Mean Wind Speed etc. 
 
 The model was trained on 50 years of data (1st Jan 1960 to 31st Dec 2010) and tested on the following five years (Jan 1st 2011 to Dec 31st 2015).
 
 \subsection{Model}
 
-The model that was implemented is a second order Hidden Markov Model \autoref{fig:HMM_states_obs}. Given the data available, our model does not require an expectation maximization framework to estimate the emissions probabilities or transition probabilities. Instead, to model the emissions probabilities, we modeled each of the observations as either a Gaussian distribution or a Log-normal distribution. We inferred the corresponding distribution parameters from the historical data available. We then constructed a multivariate Gaussian representing the probability of a vector of observations corresponding to a particular hidden state. To model the transition probabilities, we simply counted the state transitions between the discrete weather events available in our labeled data. We also used a naive estimate of the initial state probability for our model. 
-
-To infer the weather events on each day over our test period, we ran an extended Viterbi algorithm to infer the most probable sequence of hidden states given the observations over the five year test period. Using the recursive tracing approach, introduced by He \cite{He}, to evaluate the maximum a posteriori estimation of the second order HMM makes it easy to extend to higher order models for improved inference accuracy.      
+The architecture of the model which is a second order Hidden Markov Model \autoref{fig:HMM_states_obs}. Given the data available, our model does not require an expectation maximization framework to estimate the emission probabilities or transition probabilities. Instead, to model the emission probabilities, we modeled each of the observations as either a Gaussian distribution or a Log-normal distribution. We inferred the corresponding distribution parameters from the historical data. We then constructed a multivariate Gaussian representing the probability of a vector of observations corresponding to a particular hidden state. To model the transition probabilities, we simply counted the state transitions between the discrete weather events available in our labeled data. We also used a naive estimate of the initial state probability for our model. 
+\\
+\\
+To infer the weather events on each day over our test period, we ran an extended Viterbi algorithm to infer the most probable sequence of hidden states given the observations over the five year test period. Using the recursive tracing approach, introduced by \citeauthor{He} \cite{He}, to evaluate the maximum a posteriori estimation of the second order HMM is easily extendable to higher order models to improve the inference accuracy further.      
  
 \begin{figure}
 \centering            
@@ -252,7 +253,7 @@ To infer the weather events on each day over our test period, we ran an extended
 
 \subsection{Results}
 
-Over the five year test period, the model had an overall inference accuracy of over 65\% \autoref{fig:HMM_results}. Specifically, the model did well to infer extreme events like thunderstorms and specific events like Fog days as can been seen in the figure below. The model did less well on highly overlapping events like Rain, Rain-Snow, Fog-Snow etc. However, still considerably better than a naïve baseline. Furthermore, even for the worst performing states, from an end-user standpoint, this isn't as bad as it seems. In this problem, there is an inherent ordering of the hidden states, with some states being closer to each other than others. For example,  Rain-Snow, Rain and Fog-Rain-Snow are more similar to each other than to Fog days or Normal days which implies that such a misclassification is less impactful than would seem initially. The confusion matrix indicates the same and for the sake of brevity is discussed in the notebook.  
+Over the five year test period, the model had an overall accuracy of over $65\%$ (cf. \autoref{fig:HMM_results}(. Particularly, the model did well to infer extreme events like thunderstorms and specific events like Fog days as can been seen in \autoref{fig:HMM_results}. The model did less well on highly overlapping events like Rain, Rain-Snow or Fog-Snow. However, still considerably better than a naïve baseline. Furthermore, even for the worst performing states, from an end-user standpoint, this is not as bad as it seems. In this problem, there is an inherent ordering of the hidden states, with some states being closer to each other than others. For example,  Rain-Snow, Rain and Fog-Rain-Snow are more similar to each other than to Fog days or Normal days which implies that such a misclassification is less impactful than would seem initially. The confusion matrix indicates the same and is discussed with further detail in the accompanying notebook.  
 
 \begin{figure}
 \centering            
@@ -263,7 +264,7 @@ Over the five year test period, the model had an overall inference accuracy of o
 
 \subsection{Next Steps}
 
-Some extensions to the above model have been studied further in the notebook including the stationarity of the transition probabilities over the 50 year training period and a possible third order model for improved inference. 
+Some extensions to the above model have been studied further in the notebook including the stationarity of the transition probabilities over the $50$ year training period and a possible third order model for improved inference. 
 As next steps, this model can be further extended by including more observation parameters that would express different aspects of the hidden states or more appropriate parameters like the max/min instead of the mean. Fundamentally, this analysis helps us infer weather events in places/times where we can't directly experience it as in the past/future, or on a different planet for which we only have weather measures. 
 
 
