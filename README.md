@@ -1,4 +1,4 @@
-# AM207 Project - A dive into Bayesian Weather Modelling
+# AM207 Project - A dive into Bayesian Weather Modeling
 
 
 
